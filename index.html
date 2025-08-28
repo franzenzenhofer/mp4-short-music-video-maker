@@ -1,0 +1,737 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MP4 Short Music Video Maker</title>
+
+<!-- SEO Meta Tags -->
+<meta name="description" content="Create MP4 music videos by looping short clips to match your audio length. H.264/AAC format for universal playback. Mobile-first, browser-based video editor." />
+<meta name="keywords" content="mp4 video maker, music video creator, video loop, mobile video editor, browser video editor" />
+<meta name="author" content="Franz AI" />
+
+<!-- Open Graph -->
+<meta property="og:title" content="MP4 Short Music Video Maker" />
+<meta property="og:description" content="Create MP4 music videos by looping short clips to match your audio length" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://shortvideomaker.franzai.com/" />
+
+<style>
+  :root {
+    --bg: #0a0a0b;
+    --fg: #e8eaed;
+    --muted: #9aa0a6;
+    --accent: #1a73e8;
+    --ok: #34a853;
+    --warn: #fbbc05;
+    --err: #ea4335;
+    --card: #1a1a1b;
+    --line: #2d2e30;
+    --shadow: 0 2px 10px rgba(0,0,0,0.3);
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html, body {
+    background: var(--bg);
+    color: var(--fg);
+    font: 14px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+    min-height: 100vh;
+  }
+
+  @media (max-width: 768px) {
+    .container { padding: 16px 12px; }
+  }
+
+  h1 {
+    font-weight: 700;
+    font-size: clamp(20px, 4vw, 28px);
+    margin: 0 0 8px;
+    background: linear-gradient(135deg, var(--accent), #4285f4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    margin: 0 0 24px;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 16px 0;
+    box-shadow: var(--shadow);
+  }
+
+  @media (max-width: 768px) {
+    .card { padding: 16px; }
+  }
+
+  .grid {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  @media (max-width: 768px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+
+  label {
+    display: block;
+    font-weight: 600;
+    margin: 0 0 8px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  input[type=file] {
+    width: 100%;
+    padding: 12px;
+    border: 2px dashed var(--line);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  input[type=file]:hover {
+    border-color: var(--accent);
+    background: rgba(26, 115, 232, 0.05);
+  }
+
+  .btn {
+    appearance: none;
+    border: 0;
+    border-radius: 8px;
+    padding: 14px 20px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: white;
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    background: #1557b0;
+    transform: translateY(-1px);
+  }
+
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+
+  .status {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .status.idle { background: #333; color: var(--muted); }
+  .status.ok { background: rgba(52, 168, 83, 0.2); color: var(--ok); }
+  .status.warn { background: rgba(251, 188, 5, 0.2); color: var(--warn); }
+  .status.err { background: rgba(234, 67, 53, 0.2); color: var(--err); }
+
+  .meta {
+    display: grid;
+    gap: 12px;
+    margin-top: 16px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .meta-item {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 10px;
+  }
+
+  video {
+    width: 100%;
+    max-height: 240px;
+    border-radius: 8px;
+    background: black;
+  }
+
+  progress {
+    width: 100%;
+    height: 8px;
+    border-radius: 4px;
+    background: var(--line);
+    appearance: none;
+    margin: 12px 0;
+  }
+
+  progress::-webkit-progress-bar {
+    background: var(--line);
+    border-radius: 4px;
+  }
+
+  progress::-webkit-progress-value {
+    background: linear-gradient(90deg, var(--accent), #4285f4);
+    border-radius: 4px;
+  }
+
+  .result {
+    text-align: center;
+    padding: 20px;
+  }
+
+  .download-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--ok), #2d7d32);
+    color: white;
+    text-decoration: none;
+    padding: 14px 24px;
+    border-radius: 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.2s ease;
+    margin: 0 8px;
+  }
+
+  .download-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(52, 168, 83, 0.3);
+  }
+
+  .open-btn {
+    background: linear-gradient(135deg, var(--accent), #1557b0);
+  }
+
+  .open-btn:hover {
+    box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3);
+  }
+
+  .logs {
+    background: #0f0f0f;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 12px;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    line-height: 1.4;
+    max-height: 200px;
+    overflow-y: auto;
+    margin-top: 16px;
+  }
+
+  .log-entry {
+    margin: 2px 0;
+    padding: 2px 0;
+  }
+
+  .log-entry.info { color: var(--muted); }
+  .log-entry.success { color: var(--ok); }
+  .log-entry.warn { color: var(--warn); }
+  .log-entry.error { color: var(--err); }
+  .log-entry.decision { color: var(--accent); }
+
+  .footer {
+    margin-top: 40px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  @media (max-width: 768px) {
+    .download-btn {
+      display: block;
+      margin: 8px 0;
+      text-align: center;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>MP4 Short Music Video Maker</h1>
+  <p class="subtitle">
+    Upload a short video and audio track. We'll loop the video to match your audio length and create a professional MP4 (H.264/AAC) ready for social media.
+  </p>
+
+  <div class="card">
+    <div class="grid">
+      <div>
+        <label for="videoFile">Video File</label>
+        <input id="videoFile" type="file" accept="video/*" />
+      </div>
+      <div>
+        <label for="audioFile">Audio File</label>
+        <input id="audioFile" type="file" accept="audio/*" />
+      </div>
+    </div>
+    
+    <div class="meta grid">
+      <div class="meta-item" id="videoMeta">
+        <strong>Video:</strong> <span class="status idle">Select file</span>
+      </div>
+      <div class="meta-item" id="audioMeta">
+        <strong>Audio:</strong> <span class="status idle">Select file</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="grid">
+      <div>
+        <label>Video Preview</label>
+        <video id="videoPreview" playsinline muted controls></video>
+      </div>
+      <div>
+        <label>MP4 Support Status</label>
+        <div id="codecSupport" class="status idle">Checking...</div>
+        
+        <div style="margin-top: 20px;">
+          <label>Audio Volume</label>
+          <input id="volume" type="range" min="0" max="2" step="0.1" value="1" 
+                 style="width: 100%; margin: 8px 0;" />
+          <div style="font-size: 11px; color: var(--muted);">
+            Volume: <span id="volumeDisplay">1.0x</span>
+          </div>
+        </div>
+
+        <div style="margin-top: 16px; text-align: center;">
+          <button class="btn btn-primary" id="createBtn" disabled>
+            Create MP4 Video
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="progressSection" style="display: none;">
+      <progress id="progress" value="0" max="1"></progress>
+      <div id="status" class="status warn">Processing...</div>
+    </div>
+
+    <div id="resultSection" class="result" style="display: none;">
+      <p style="margin-bottom: 16px; color: var(--ok); font-weight: 600;">
+        ✅ Your MP4 video is ready!
+      </p>
+      <a id="downloadBtn" class="download-btn" href="#" download>
+        📥 Download MP4
+      </a>
+      <a id="openBtn" class="download-btn open-btn" href="#" target="_blank">
+        🔗 Open in New Tab
+      </a>
+    </div>
+  </div>
+
+  <div class="card">
+    <label>Technical Log</label>
+    <div id="logs" class="logs">
+      <div class="log-entry info">System ready. Upload files to begin.</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p><strong>100% Browser-Based</strong> • No uploads, all processing happens locally</p>
+    <p>Requires modern browser with MP4 MediaRecorder support (Chrome, Edge, Safari)</p>
+  </div>
+</div>
+
+<script>
+(() => {
+  const log = (type, message) => {
+    const logs = document.getElementById('logs');
+    const entry = document.createElement('div');
+    entry.className = `log-entry ${type}`;
+    const time = new Date().toLocaleTimeString();
+    entry.textContent = `[${time}] ${message}`;
+    logs.appendChild(entry);
+    logs.scrollTop = logs.scrollHeight;
+    console.log(`[${type.toUpperCase()}] ${message}`);
+  };
+
+  const formatTime = (seconds) => {
+    if (!isFinite(seconds)) return '—';
+    const min = Math.floor(seconds / 60);
+    const sec = Math.round((seconds % 60) * 10) / 10;
+    return `${min}:${sec.toString().padStart(4, '0')}`;
+  };
+
+  const formatFileSize = (bytes) => {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+  };
+
+  // Elements
+  const videoInput = document.getElementById('videoFile');
+  const audioInput = document.getElementById('audioFile');
+  const videoPreview = document.getElementById('videoPreview');
+  const videoMeta = document.getElementById('videoMeta');
+  const audioMeta = document.getElementById('audioMeta');
+  const codecSupport = document.getElementById('codecSupport');
+  const createBtn = document.getElementById('createBtn');
+  const progressSection = document.getElementById('progressSection');
+  const progress = document.getElementById('progress');
+  const status = document.getElementById('status');
+  const resultSection = document.getElementById('resultSection');
+  const downloadBtn = document.getElementById('downloadBtn');
+  const openBtn = document.getElementById('openBtn');
+  const volumeSlider = document.getElementById('volume');
+  const volumeDisplay = document.getElementById('volumeDisplay');
+
+  // State
+  let audioCtx = null;
+  let audioBuffer = null;
+  let videoFile = null;
+  let audioFile = null;
+  let videoLoaded = false;
+  let mp4MimeType = null;
+
+  // Volume display update
+  volumeSlider.addEventListener('input', () => {
+    volumeDisplay.textContent = `${parseFloat(volumeSlider.value).toFixed(1)}x`;
+  });
+
+  // Check MP4 support - FAIL HARD, FAIL FAST!
+  const checkMP4Support = () => {
+    log('info', 'Checking MP4 MediaRecorder support...');
+    
+    const candidates = [
+      'video/mp4;codecs="avc1.42E01E,mp4a.40.2"', // H.264 Baseline + AAC
+      'video/mp4;codecs="avc1.4D401E,mp4a.40.2"', // H.264 Main + AAC  
+      'video/mp4;codecs="avc1.64001E,mp4a.40.2"', // H.264 High + AAC
+      'video/mp4'
+    ];
+
+    for (const mime of candidates) {
+      if (MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(mime)) {
+        mp4MimeType = mime;
+        log('success', `✅ MP4 SUPPORTED: ${mime}`);
+        codecSupport.className = 'status ok';
+        codecSupport.textContent = `✅ MP4 Ready (${mime.split(';')[0]})`;
+        return;
+      }
+      log('warn', `❌ Not supported: ${mime}`);
+    }
+
+    // FAIL HARD - NO FALLBACKS!
+    log('error', '💥 MP4 NOT SUPPORTED - APP CANNOT WORK');
+    codecSupport.className = 'status err';
+    codecSupport.innerHTML = '💥 MP4 NOT SUPPORTED<br/>Use Chrome/Edge/Safari';
+    
+    // Disable everything
+    videoInput.disabled = true;
+    audioInput.disabled = true;
+    createBtn.disabled = true;
+  };
+
+  // Video file handler
+  videoInput.addEventListener('change', async () => {
+    const file = videoInput.files?.[0];
+    if (!file) {
+      videoFile = null;
+      videoLoaded = false;
+      videoMeta.innerHTML = '<strong>Video:</strong> <span class="status idle">Select file</span>';
+      validateInputs();
+      return;
+    }
+
+    log('info', `📹 Video selected: ${file.name} (${formatFileSize(file.size)})`);
+    videoFile = file;
+    
+    const url = URL.createObjectURL(file);
+    videoPreview.src = url;
+    videoPreview.loop = true;
+    videoPreview.muted = true;
+    
+    videoPreview.onloadedmetadata = () => {
+      videoLoaded = true;
+      const duration = videoPreview.duration;
+      const loops = audioBuffer ? Math.ceil(audioBuffer.duration / duration) : '?';
+      
+      log('success', `✅ Video loaded: ${videoPreview.videoWidth}×${videoPreview.videoHeight}, ${formatTime(duration)}`);
+      if (loops !== '?') {
+        log('decision', `🔄 Will loop video ${loops} times to match audio length`);
+      }
+      
+      videoMeta.innerHTML = `
+        <strong>Video:</strong> <span class="status ok">${file.name}</span><br/>
+        <small>${videoPreview.videoWidth}×${videoPreview.videoHeight} • ${formatTime(duration)} • ${loops}× loops needed</small>
+      `;
+      validateInputs();
+    };
+
+    videoPreview.onerror = () => {
+      log('error', '💥 FAILED TO LOAD VIDEO');
+      videoLoaded = false;
+      videoMeta.innerHTML = '<strong>Video:</strong> <span class="status err">LOAD FAILED</span>';
+      validateInputs();
+    };
+  });
+
+  // Audio file handler  
+  audioInput.addEventListener('change', async () => {
+    const file = audioInput.files?.[0];
+    if (!file) {
+      audioFile = null;
+      audioBuffer = null;
+      audioMeta.innerHTML = '<strong>Audio:</strong> <span class="status idle">Select file</span>';
+      validateInputs();
+      return;
+    }
+
+    log('info', `🎵 Audio selected: ${file.name} (${formatFileSize(file.size)})`);
+    audioFile = file;
+
+    try {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        log('info', '🔊 AudioContext created');
+      }
+
+      const arrayBuffer = await file.arrayBuffer();
+      audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+      
+      const loops = videoLoaded ? Math.ceil(audioBuffer.duration / videoPreview.duration) : '?';
+      
+      log('success', `✅ Audio decoded: ${audioBuffer.numberOfChannels}ch, ${Math.round(audioBuffer.sampleRate/1000)}kHz, ${formatTime(audioBuffer.duration)}`);
+      if (loops !== '?') {
+        log('decision', `🔄 Video will loop ${loops} times to match ${formatTime(audioBuffer.duration)} audio`);
+      }
+
+      audioMeta.innerHTML = `
+        <strong>Audio:</strong> <span class="status ok">${file.name}</span><br/>
+        <small>${audioBuffer.numberOfChannels}ch • ${Math.round(audioBuffer.sampleRate/1000)}kHz • ${formatTime(audioBuffer.duration)} • ${loops}× video loops</small>
+      `;
+      
+    } catch (error) {
+      log('error', `💥 AUDIO DECODE FAILED: ${error.message}`);
+      audioBuffer = null;
+      audioMeta.innerHTML = '<strong>Audio:</strong> <span class="status err">DECODE FAILED</span>';
+    }
+    
+    validateInputs();
+  });
+
+  const validateInputs = () => {
+    const ready = mp4MimeType && videoLoaded && audioBuffer;
+    createBtn.disabled = !ready;
+    
+    if (ready) {
+      log('success', '🚀 ALL SYSTEMS GO - READY TO CREATE MP4!');
+      createBtn.textContent = '🎬 CREATE MP4 VIDEO';
+    } else {
+      createBtn.textContent = 'Waiting for files...';
+    }
+  };
+
+  // Create MP4 video - THE MAIN EVENT!
+  createBtn.addEventListener('click', async () => {
+    if (!mp4MimeType || !videoLoaded || !audioBuffer) {
+      log('error', '💥 NOT READY - MISSING REQUIREMENTS');
+      return;
+    }
+
+    log('decision', '🎬 STARTING MP4 CREATION PROCESS');
+    log('info', `Target: ${formatTime(audioBuffer.duration)} MP4 with H.264/AAC`);
+    
+    progressSection.style.display = 'block';
+    resultSection.style.display = 'none';
+    createBtn.disabled = true;
+
+    try {
+      // Resume audio context (required by browsers)
+      await audioCtx.resume();
+      log('info', '🔊 AudioContext resumed and ready');
+
+      // Prepare video for looping
+      videoPreview.currentTime = 0;
+      videoPreview.loop = true;
+      videoPreview.muted = true;
+      log('info', '📹 Video prepared for looping capture');
+
+      // Create video stream with automatic frame rate
+      const videoStream = videoPreview.captureStream();
+      const videoTrack = videoStream.getVideoTracks()[0];
+      if (!videoTrack) throw new Error('Failed to capture video stream');
+      log('success', '📹 Video stream captured successfully');
+
+      // Create audio processing chain
+      const source = audioCtx.createBufferSource();
+      source.buffer = audioBuffer;
+      
+      const gain = audioCtx.createGain();
+      const volume = parseFloat(volumeSlider.value);
+      gain.gain.value = volume;
+      
+      const destination = audioCtx.createMediaStreamDestination();
+      source.connect(gain);
+      gain.connect(destination);
+      
+      const audioTrack = destination.stream.getAudioTracks()[0];
+      if (!audioTrack) throw new Error('Failed to create audio stream');
+      log('success', `🔊 Audio chain ready (volume: ${volume}x)`);
+
+      // Combine video and audio streams
+      const combinedStream = new MediaStream();
+      combinedStream.addTrack(videoTrack);
+      combinedStream.addTrack(audioTrack);
+      log('success', '🔗 Video and audio streams combined');
+
+      // Create MediaRecorder with MP4 settings
+      const recorder = new MediaRecorder(combinedStream, {
+        mimeType: mp4MimeType,
+        videoBitsPerSecond: 4_000_000, // 4 Mbps
+        audioBitsPerSecond: 192_000    // 192 kbps
+      });
+      
+      log('success', `🎥 MediaRecorder ready: ${mp4MimeType} @ 4Mbps video + 192kbps audio`);
+
+      const chunks = [];
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) {
+          chunks.push(e.data);
+          log('info', `📦 Chunk recorded: ${formatFileSize(e.data.size)}`);
+        }
+      };
+
+      // Progress tracking
+      const totalDuration = audioBuffer.duration;
+      const startTime = performance.now();
+      progress.max = totalDuration;
+      
+      const progressInterval = setInterval(() => {
+        const elapsed = (performance.now() - startTime) / 1000;
+        const progressValue = Math.min(elapsed, totalDuration);
+        progress.value = progressValue;
+        status.textContent = `Recording: ${formatTime(progressValue)} / ${formatTime(totalDuration)}`;
+        status.className = 'status warn';
+      }, 100);
+
+      // Audio end handler - stops recording when audio finishes
+      source.onended = () => {
+        log('info', '🎵 Audio playback completed');
+        clearInterval(progressInterval);
+        
+        if (recorder.state === 'recording') {
+          recorder.stop();
+          log('info', '⏹️ Recording stopped');
+        }
+        
+        videoPreview.pause();
+        log('info', '📹 Video preview paused');
+      };
+
+      // Recording complete handler
+      recorder.onstop = () => {
+        log('info', '🎬 Processing recorded chunks...');
+        
+        // Clean up streams immediately  
+        combinedStream.getTracks().forEach(track => {
+          track.stop();
+          log('info', `🛑 Stopped ${track.kind} track`);
+        });
+        
+        // Create final MP4 blob
+        const blob = new Blob(chunks, { type: mp4MimeType });
+        const url = URL.createObjectURL(blob);
+        const sizeStr = formatFileSize(blob.size);
+        
+        log('success', `✅ MP4 CREATED! Size: ${sizeStr}, Type: ${blob.type}`);
+        
+        // Generate timestamped filename  
+        const now = new Date();
+        const timestamp = now.toISOString()
+          .slice(0, 19)
+          .replace(/[:-]/g, '')
+          .replace('T', '_');
+        const filename = `music_video_${timestamp}.mp4`;
+        
+        // Setup download and open buttons
+        downloadBtn.href = url;
+        downloadBtn.download = filename;
+        openBtn.href = url;
+        
+        log('success', `🎉 READY FOR DOWNLOAD: ${filename}`);
+        
+        // Show success UI
+        progressSection.style.display = 'none';
+        resultSection.style.display = 'block';
+        createBtn.disabled = false;
+        createBtn.textContent = '🎬 CREATE ANOTHER MP4';
+        
+        status.textContent = `✅ MP4 ready! (${sizeStr})`;
+        status.className = 'status ok';
+        progress.value = totalDuration;
+      };
+
+      // Error handler
+      recorder.onerror = (e) => {
+        log('error', `💥 RECORDING ERROR: ${e.error || e}`);
+        clearInterval(progressInterval);
+        progressSection.style.display = 'none';
+        createBtn.disabled = false;
+        alert('Recording failed! Check console for details.');
+      };
+
+      // START RECORDING!
+      log('decision', '🔴 STARTING RECORDING NOW');
+      recorder.start(); // Single chunk mode for simplicity
+      
+      // Start video playback (this triggers the capture)
+      await videoPreview.play();
+      log('info', '▶️ Video playback started');
+      
+      // Start audio playback (this determines the recording length)
+      source.start(0);
+      log('info', '🎵 Audio playback started');
+      
+    } catch (error) {
+      log('error', `💥 CREATION FAILED: ${error.message}`);
+      console.error('Full error:', error);
+      
+      progressSection.style.display = 'none';
+      createBtn.disabled = false;
+      alert(`MP4 creation failed: ${error.message}`);
+    }
+  });
+
+  // Initialize the app
+  log('info', '🚀 MP4 Short Music Video Maker starting...');
+  checkMP4Support();
+  validateInputs();
+  log('info', '✅ App initialized and ready');
+})();
+</script>
+</body>
+</html>

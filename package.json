@@ -1,0 +1,25 @@
+{
+  "name": "mp4-short-music-video-maker",
+  "version": "2.0.0",
+  "description": "Create MP4 music videos by looping short clips - simple, fast, no fallbacks",
+  "main": "index.html",
+  "scripts": {
+    "dev": "python3 -m http.server 3000",
+    "deploy": "wrangler deploy",
+    "preview": "wrangler dev"
+  },
+  "keywords": [
+    "mp4",
+    "video-maker",
+    "music-video",
+    "browser-based",
+    "h264",
+    "aac",
+    "mediarecorder"
+  ],
+  "author": "Franz AI",
+  "license": "MIT",
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
+}

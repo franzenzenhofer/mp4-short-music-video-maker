@@ -1,0 +1,13 @@
+name = "shortvideomaker-new"
+main = "_worker.js"
+compatibility_date = "2025-08-28"
+
+[assets]
+directory = "./"
+
+[[routes]]
+pattern = "shortvideomaker.franzai.com/*"
+zone_name = "franzai.com"
+
+[vars]
+ENVIRONMENT = "production"
