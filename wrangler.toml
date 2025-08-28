@@ -1,13 +1,14 @@
-name = "shortvideomaker-new"
+name = "shortvideomaker-v2"
 main = "_worker.js"
 compatibility_date = "2025-08-28"
 
 [assets]
 directory = "./"
 
-[[routes]]
-pattern = "shortvideomaker.franzai.com/*"
-zone_name = "franzai.com"
+# Deploy without routes for now - we'll update the existing worker
+# [[routes]]
+# pattern = "shortvideomaker.franzai.com/*"
+# zone_name = "franzai.com"
 
 [vars]
 ENVIRONMENT = "production"
